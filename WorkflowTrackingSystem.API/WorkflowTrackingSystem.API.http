@@ -1,0 +1,6 @@
+@WorkflowTrackingSystem.API_HostAddress = http://localhost:5022
+
+GET {{WorkflowTrackingSystem.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
