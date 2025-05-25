@@ -1,0 +1,47 @@
+<div class="workflow-list-container">
+      <div class="header">
+        <h2>Workflows</h2>
+        <button class="btn btn-primary" [routerLink]="['/workflows/create']">
+          <span class="icon">+</span>
+          Create Workflow
+        </button>
+      </div>
+
+      <div class="workflows-grid" *ngIf="workflows$ | async as workflows">
+        <div class="workflow-card" *ngFor="let workflow of workflows">
+          <div class="card-header">
+            <h3>{{ workflow.name }}</h3>
+            <div class="card-actions">
+              <button class="btn btn-danger" (click)="deleteWorkflow(workflow.id)">
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="description">{{ workflow.description }}</p>
+            <div class="steps-info">
+              <span class="steps-count">{{ workflow.steps?.length || 0 }} steps</span>
+              <span class="created-date">Created {{ workflow.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" (click)="startProcess(workflow.id)">
+              Start Process
+            </button>
+            <a class="btn btn-outline" [routerLink]="['/workflows', workflow.id]">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="(workflows$ | async)?.length === 0">
+        <div class="empty-content">
+          <h3>No workflows found</h3>
+          <p>Create your first workflow to get started</p>
+          <button class="btn btn-primary" [routerLink]="['/workflows/create']">
+            Create Workflow
+          </button>
+        </div>
+      </div>
+    </div>

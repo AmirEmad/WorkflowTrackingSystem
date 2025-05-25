@@ -1,0 +1,150 @@
+<div class="workflow-form-container">
+      <div class="form-header">
+        <h2>{{ isEditMode ? 'Edit Workflow' : 'Create New Workflow' }}</h2>
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          ← Back
+        </button>
+      </div>
+
+      <form [formGroup]="workflowForm" (ngSubmit)="onSubmit()" class="workflow-form">
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          
+          <div class="form-group">
+            <label for="name">Workflow Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name" 
+              class="form-control"
+              [class.error]="isFieldInvalid('name')"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('name')">
+              Workflow name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea 
+              id="description" 
+              formControlName="description" 
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Workflow Steps</h3>
+            <button type="button" class="btn btn-primary" (click)="addStep()">
+              + Add Step
+            </button>
+          </div>
+
+          <div formArrayName="steps" class="steps-container">
+            <div 
+              *ngFor="let step of steps.controls; let i = index" 
+              [formGroupName]="i" 
+              class="step-card"
+            >
+              <div class="step-header">
+                <span class="step-number">Step {{ i + 1 }}</span>
+                <button 
+                  type="button" 
+                  class="btn btn-danger btn-sm" 
+                  (click)="removeStep(i)"
+                  *ngIf="steps.length > 1"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div class="step-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Step Name *</label>
+                    <input 
+                      type="text" 
+                      formControlName="stepName" 
+                      class="form-control"
+                      [class.error]="isStepFieldInvalid(i, 'stepName')"
+                    >
+                  </div>
+
+                  <div class="form-group">
+                    <label>Assigned To *</label>
+                    <select 
+                      formControlName="assignedTo" 
+                      class="form-control"
+                      [class.error]="isStepFieldInvalid(i, 'assignedTo')"
+                    >
+                      <option value="">Select role...</option>
+                      <option value="employee">Employee</option>
+                      <option value="manager">Manager</option>
+                      <option value="finance">Finance</option>
+                      <option value="hr">HR</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Action Type *</label>
+                    <select 
+                      formControlName="actionType" 
+                      class="form-control"
+                      [class.error]="isStepFieldInvalid(i, 'actionType')"
+                    >
+                      <option value="">Select action...</option>
+                      <option value="input">Input</option>
+                      <option value="approve_reject">Approve/Reject</option>
+                      <option value="review">Review</option>
+                      <option value="validate">Validate</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Next Step</label>
+                    <input 
+                      type="text" 
+                      formControlName="nextStep" 
+                      class="form-control"
+                      placeholder="Leave empty for last step"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        formControlName="requiresValidation"
+                      >
+                      <span class="checkmark"></span>
+                      Requires External Validation
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary" 
+            [disabled]="workflowForm.invalid || isSubmitting"
+          >
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Workflow' : 'Create Workflow') }}
+          </button>
+        </div>
+      </form>
+    </div>

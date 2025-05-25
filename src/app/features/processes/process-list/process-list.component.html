@@ -1,0 +1,139 @@
+ <div class="process-list-container">
+      <div class="header">
+        <h2>Process Management</h2>
+        <button class="btn btn-primary" (click)="showStartProcessModal = true">
+          <span class="icon">+</span>
+          Start New Process
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filters">
+          <div class="filter-group">
+            <label>Workflow:</label>
+            <select [(ngModel)]="selectedWorkflowId" (ngModelChange)="applyFilters()" class="form-control">
+              <option value="">All Workflows</option>
+              <option *ngFor="let workflow of workflows$ | async" [value]="workflow.id">
+                {{ workflow.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Status:</label>
+            <select [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()" class="form-control">
+              <option value="">All Statuses</option>
+              <option [value]="ProcessStatus.Active">Active</option>
+              <option [value]="ProcessStatus.Completed">Completed</option>
+              <option [value]="ProcessStatus.Pending">Pending</option>
+              <option [value]="ProcessStatus.Rejected">Rejected</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Assigned To:</label>
+            <input 
+              type="text" 
+              [(ngModel)]="assignedTo" 
+              (ngModelChange)="applyFilters()"
+              placeholder="Enter role or user"
+              class="form-control"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Process List -->
+      <div class="processes-container" *ngIf="filteredProcesses$ | async as processes">
+        <div class="process-table">
+          <div class="table-header">
+            <div class="col">Process ID</div>
+            <div class="col">Workflow</div>
+            <div class="col">Initiator</div>
+            <div class="col">Status</div>
+            <div class="col">Current Step</div>
+            <div class="col">Created</div>
+            <div class="col">Actions</div>
+          </div>
+
+          <div class="table-row" *ngFor="let process of processes">
+            <div class="col">
+              <span class="process-id">{{ process.id.substring(0, 8) }}...</span>
+            </div>
+            <div class="col">
+              <span class="workflow-name">{{ process.workflow?.name }}</span>
+            </div>
+            <div class="col">{{ process.initiator }}</div>
+            <div class="col">
+              <span class="status-badge" [class]="'status-' + getStatusClass(process.status)">
+                {{ getStatusText(process.status) }}
+              </span>
+            </div>
+            <div class="col">
+              <span class="current-step">{{ process.currentStep || 'N/A' }}</span>
+            </div>
+            <div class="col">{{ process.createdAt | date:'short' }}</div>
+            <div class="col actions">
+              <button class="btn btn-sm btn-primary" [routerLink]="['/processes', process.id]">
+                View
+              </button>
+              <button 
+                class="btn btn-sm btn-secondary" 
+                (click)="executeStep(process)"
+                *ngIf="process.status === ProcessStatus.Active"
+              >
+                Execute
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="processes.length === 0">
+          <div class="empty-content">
+            <h3>No processes found</h3>
+            <p>No processes match your current filters</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start Process Modal -->
+    <div class="modal-overlay" *ngIf="showStartProcessModal" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Start New Process</h3>
+          <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Workflow:</label>
+            <select [(ngModel)]="newProcessWorkflowId" class="form-control">
+              <option value="">Choose a workflow...</option>
+              <option *ngFor="let workflow of workflows$ | async" [value]="workflow.id">
+                {{ workflow.name }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Initiator:</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newProcessInitiator" 
+              placeholder="Enter your username"
+              class="form-control"
+            >
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button 
+            class="btn btn-primary" 
+            (click)="startProcess()"
+            [disabled]="!newProcessWorkflowId || !newProcessInitiator"
+          >
+            Start Process
+          </button>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,31 @@
+ <aside class="sidebar" [class.collapsed]="isCollapsed">
+      <div class="sidebar-header">
+        <button class="toggle-btn" (click)="toggleSidebar()">
+          <span [innerHTML]="isCollapsed ? '→' : '←'"></span>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-title" *ngIf="!isCollapsed">Management</div>
+          <a 
+            [routerLink]="['/workflows']" 
+            routerLinkActive="active"
+            class="nav-item"
+            title="Workflows"
+          >
+            <span class="nav-icon">🔄</span>
+            <span class="nav-text" *ngIf="!isCollapsed">Workflows</span>
+          </a>
+          <a 
+            [routerLink]="['/processes']" 
+            routerLinkActive="active"
+            class="nav-item"
+            title="Processes"
+          >
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text" *ngIf="!isCollapsed">Processes</span>
+          </a>
+        </div>
+      </nav>
+    </aside>

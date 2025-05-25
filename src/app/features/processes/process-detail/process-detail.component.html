@@ -1,0 +1,141 @@
+<div class="process-detail-container" *ngIf="process$ | async as process">
+    <div class="header">
+        <div class="header-content">
+            <button class="btn btn-secondary back-btn" (click)="goBack()">
+                ← Back to Processes
+            </button>
+            <div class="process-info">
+                <h2>Process Details</h2>
+                <div class="process-meta">
+                    <span class="process-id">ID: {{ process.id }}</span>
+                    <span class="status-badge" [class]="'status-' + getStatusClass(process.status)">
+                        {{ getStatusText(process.status) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <!-- Process Information -->
+        <div class="info-panel">
+            <div class="panel-header">
+                <h3>Process Information</h3>
+            </div>
+            <div class="panel-content">
+                <div class="info-row">
+                    <label>Workflow:</label>
+                    <span>{{ process.workflow?.name }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Initiator:</label>
+                    <span>{{ process.initiator }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Current Step:</label>
+                    <span>{{ process.currentStep || 'Completed' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Created:</label>
+                    <span>{{ process.createdAt | date:'full' }}</span>
+                </div>
+                <div class="info-row">
+                    <label>Updated:</label>
+                    <span>{{ process.updatedAt | date:'full' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Execution Panel -->
+        <div class="execution-panel" *ngIf="canExecuteStep(process)">
+            <div class="panel-header">
+                <h3>Execute Current Step</h3>
+            </div>
+            <div class="panel-content">
+                <div class="form-group">
+                    <label>Step Name:</label>
+                    <input type="text" [value]="process.currentStep" readonly class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Performed By:</label>
+                    <input type="text" [(ngModel)]="executeForm.performedBy" placeholder="Enter your username"
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Action:</label>
+                    <select [(ngModel)]="executeForm.action" class="form-control">
+                        <option value="">Select action...</option>
+                        <option value="approve">Approve</option>
+                        <option value="reject">Reject</option>
+                        <option value="complete">Complete</option>
+                        <option value="submit">Submit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Comments:</label>
+                    <textarea [(ngModel)]="executeForm.comments" placeholder="Add comments (optional)"
+                        class="form-control" rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary" (click)="executeStep(process)" [disabled]="!canSubmitExecution()">
+                    Execute Step
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Timeline -->
+    <div class="timeline-panel">
+        <div class="panel-header">
+            <h3>Process Timeline</h3>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item" *ngFor="let step of process.processSteps; let i = index"
+                [class.active]="step.status === StepStatus.InProgress"
+                [class.completed]="step.status === StepStatus.Completed"
+                [class.rejected]="step.status === StepStatus.Rejected">
+                <div class="timeline-marker">
+                    <div class="marker-icon">
+                        <span *ngIf="step.status === StepStatus.Completed">✓</span>
+                        <span *ngIf="step.status === StepStatus.Rejected">✗</span>
+                        <span *ngIf="step.status === StepStatus.InProgress">●</span>
+                        <span *ngIf="step.status === StepStatus.Pending">○</span>
+                    </div>
+                </div>
+                <div class="timeline-content">
+                    <div class="step-header">
+                        <h4>{{ step.stepName }}</h4>
+                        <span class="step-status" [class]="'status-' + getStepStatusClass(step.status)">
+                            {{ getStepStatusText(step.status) }}
+                        </span>
+                    </div>
+                    <div class="step-details">
+                        <div class="detail-row" *ngIf="step.performedBy">
+                            <label>Performed by:</label>
+                            <span>{{ step.performedBy }}</span>
+                        </div>
+                        <div class="detail-row" *ngIf="step.action">
+                            <label>Action:</label>
+                            <span>{{ step.action }}</span>
+                        </div>
+                        <div class="detail-row" *ngIf="step.comments">
+                            <label>Comments:</label>
+                            <span>{{ step.comments }}</span>
+                        </div>
+                        <div class="detail-row" *ngIf="step.validationResult">
+                            <label>Validation:</label>
+                            <span>{{ step.validationResult }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <label>Created:</label>
+                            <span>{{ step.createdAt | date:'short' }}</span>
+                        </div>
+                        <div class="detail-row" *ngIf="step.completedAt">
+                            <label>Completed:</label>
+                            <span>{{ step.completedAt | date:'short' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
